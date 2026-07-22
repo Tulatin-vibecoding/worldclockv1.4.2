@@ -1,0 +1,20 @@
+{
+  "name": "世界时间 - World Clock",
+  "short_name": "世界时间",
+  "description": "全球城市时间查询与对比工具，支持离线使用",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#c8d0d8",
+  "theme_color": "#C1665B",
+  "orientation": "any",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "travel"]
+}

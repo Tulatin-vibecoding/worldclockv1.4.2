@@ -1,0 +1,33 @@
+{
+  "name": "world-clock",
+  "version": "1.4.1",
+  "description": "",
+  "main": "sw.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "dev": "node -e \"const h=require('http'),f=require('fs'),p=require('path');const M={'.html':'text/html','.css':'text/css','.js':'application/javascript','.json':'application/json','.svg':'image/svg+xml'};h.createServer((r,s)=>{let fp=r.url.split('?')[0];fp=fp==='/'?'/index.html':fp;fp=p.join(__dirname,fp);f.readFile(fp,(e,d)=>{if(e){s.writeHead(404);s.end('404')}else{s.writeHead(200,{'Content-Type':M[p.extname(fp)]||'text/plain'});s.end(d)}});}).listen(3456,()=>console.log('http://localhost:3456'));\"",
+    "generate": "node scripts/generate.js naturalEarth",
+    "precap": "rm -rf www && mkdir -p www && cp index.html version.json version.json manifest.json sw.js www/ && cp -r css js www/ && mkdir -p www/lib && cp lib/three.min.js lib/topojson-client.js www/lib/ && mkdir -p www/data && cp data/city-3d-coords.json data/ne_50m_land.topojson data/elevations.json www/data/ && mkdir -p www/lang && cp lang/en.json www/lang/ && echo 'www ready'",
+    "cap:sync": "npm run precap && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:build": "npm run cap:sync && npx cap open android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "d3-geo": "^3.1.1",
+    "shapefile": "^0.6.6",
+    "suncalc": "^2.0.1",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "topojson-client": "^3.1.0",
+    "topojson-server": "^3.0.1"
+  }
+}

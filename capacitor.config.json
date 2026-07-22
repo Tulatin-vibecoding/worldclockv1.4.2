@@ -1,0 +1,17 @@
+{
+  "appId": "com.worldclock.app",
+  "appName": "\u4e16\u754c\u65f6\u95f4",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "minSdkVersion": 28,
+    "targetSdkVersion": 34,
+    "statusBarOverlaysWebView": false,
+    "statusBarStyle": "DARK"
+  },
+  "backgroundColor": "#C8D0D8"
+}

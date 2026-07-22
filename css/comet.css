@@ -1,0 +1,19 @@
+/* 彗星动画 */
+#comet-el {
+  position:absolute;z-index:2;pointer-events:none;
+  width:var(--comet-len,150px);height:2.5px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.7) 25%,rgba(255,255,255,0.95) 55%,rgba(255,255,255,1) 75%,rgba(255,255,255,0.9) 88%,transparent 100%);
+  border-radius:2px;
+  filter:blur(2px);
+  transform-origin:left center;
+  animation:comet-sweep 7s linear infinite;
+  opacity:0;
+}
+@keyframes comet-sweep {
+  0%   { transform: rotate(var(--comet-angle,32deg)) translate(var(--comet-x0,-12%),var(--comet-y0,12%)); opacity:0; }
+  5%   { opacity:1; }
+  35%  { transform: rotate(var(--comet-angle,32deg)) translate(var(--comet-xm,50%),var(--comet-ym,45%)); }
+  60%  { transform: rotate(var(--comet-angle,32deg)) translate(var(--comet-x1,95%),var(--comet-y1,78%)); opacity:0.7; }
+  70%  { transform: rotate(var(--comet-angle,32deg)) translate(var(--comet-x1,95%),var(--comet-y1,78%)); opacity:0; }
+  100% { transform: rotate(var(--comet-angle,32deg)) translate(var(--comet-x1,95%),var(--comet-y1,78%)); opacity:0; }
+}
