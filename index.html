@@ -1,1 +1,312 @@
-index.html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>世界时间 - World Clock</title>
+<meta name="description" content="全球城市时间查询与对比工具">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+<link rel="stylesheet" href="css/base.css?v=4">
+<link rel="stylesheet" href="css/panels.css?v=4">
+<link rel="stylesheet" href="css/comet.css?v=2">
+<!-- Apple touch icon -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+</head>
+<body>
+
+<div class="app">
+  <!-- 汉堡菜单 -->
+  <button class="menu-toggle" id="menuToggle" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="slide-menu" id="slideMenu">
+    <div class="menu-header" data-i18n="菜单">菜单</div>
+    <ul class="menu-items">
+      <li id="menuCityDetail">🏙️ <span data-i18n="城市详情">城市详情</span></li>
+      <li id="menuCityCompare">⚖️ <span data-i18n="城市比较">城市比较</span></li>
+      <li class="menu-divider"></li>
+      <li id="menuDevOptions"><span data-i18n="开发者选项">开发者选项</span></li>
+    </ul>
+  </nav>
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <!-- 城市详情面板 -->
+  <div class="panel" id="cityDetailPanel">
+    <div class="panel-header">
+      <button class="panel-back" id="closeCityDetail" data-i18n="← 返回">← 返回</button>
+      <h2 class="panel-title" data-i18n="城市详情">城市详情</h2>
+    </div>
+    <input class="panel-search detail-search" id="detailSearch" placeholder="搜索城市..." data-i18n="搜索城市..." type="text">
+    <div class="panel-body" id="detailBody"></div>
+  </div>
+  <!-- 城市比较面板 -->
+  <div class="panel" id="cityComparePanel">
+    <div class="panel-header">
+      <h2 class="panel-title" style="text-align:center" data-i18n="城市比较">城市比较</h2>
+      <button class="panel-back" id="closeCityCompare" data-i18n="← 返回">← 返回</button>
+    </div>
+    <div class="panel-body">
+      <div class="compare-select">
+        <input class="panel-search cmp-search" id="cmpSearchA" placeholder="城市 A" data-i18n="城市 A" type="text" autocomplete="off">
+        <input class="panel-search cmp-search" id="cmpSearchB" placeholder="城市 B" data-i18n="城市 B" type="text" autocomplete="off">
+      </div>
+      <div class="compare-result" id="cmpResult"></div>
+      <h4 class="mini-globe-title" id="miniGlobeTitle" style="display:none" data-i18n="距离示意图">距离示意图</h4>
+      <div class="mini-globe-container" id="miniGlobeContainer" style="display:none"></div>
+    </div>
+  </div>
+  <!-- 开发者选项 -->
+  <div class="panel" id="devPanel">
+    <div class="panel-header">
+      <h2 class="panel-title" data-i18n="开发者选项">开发者选项</h2>
+      <button class="panel-back" id="closeDev" data-i18n="← 返回">← 返回</button>
+    </div>
+    <div class="panel-body" id="devBody">
+      <div class="dev-section">
+        <h4 data-i18n="调试与测试">调试与测试</h4>
+        <button class="btn-dev" id="btnUITest" data-i18n="运行 UI 测试">运行 UI 测试</button>
+        <button class="btn-dev" id="btnIntegrationTest" data-i18n="运行集成测试">运行集成测试</button>
+        <div class="dev-results" id="devTestResults"></div>
+      </div>
+      <div class="dev-section">
+        <h4 data-i18n="性能监控">性能监控</h4>
+        <label class="dev-toggle">
+          <input type="checkbox" id="togglePerf"> <span data-i18n="启停性能监控">启停性能监控</span>
+        </label>
+        <div class="dev-fps" id="devFps"></div>
+      </div>
+      <div class="dev-section">
+        <h4 data-i18n="崩溃日志">崩溃日志</h4>
+        <label class="dev-toggle">
+          <input type="checkbox" id="toggleCrash"> <span data-i18n="启停崩溃日志">启停崩溃日志</span>
+        </label>
+        <div class="dev-actions">
+          <button class="btn-dev" id="btnExportLog" data-i18n="导出日志">导出日志</button>
+          <button class="btn-dev" id="btnClearLog" data-i18n="清除日志">清除日志</button>
+        </div>
+        <div class="dev-log-list" id="devLogList"></div>
+      </div>
+      <div class="dev-section">
+        <h4 data-i18n="触控调试">触控调试</h4>
+        <label class="dev-toggle">
+          <input type="checkbox" id="toggleDebugTouch"> <span data-i18n="显示触控事件日志">显示触控事件日志</span>
+        </label>
+      </div>
+      <div class="dev-section">
+        <h4 data-i18n="语言">语言</h4>
+        <select class="dev-select" id="langSelect"></select>
+      </div>
+      <div class="dev-section">
+        <h4 data-i18n="地球渲染帧数">地球渲染帧数</h4>
+        <select class="dev-select" id="fpsSelect"></select>
+        
+        <p class="dev-hint" data-i18n="受设备性能、浏览器限制和屏幕刷新率影响，实际帧数可能低于设定值。">受设备性能、浏览器限制和屏幕刷新率影响，实际帧数可能低于设定值。</p>
+      </div>
+    </div>
+  </div>
+  <!-- Header -->
+  <div class="header">
+    <h1 data-i18n="世界时间">世界时间</h1>
+  </div>
+
+  <!-- 搜索 -->
+  <div class="search-wrapper">
+    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" class="search-input" id="searchInput"
+      placeholder="搜索城市，如「纽约」「东京」「伦敦」..." data-i18n="搜索城市，如「纽约」「东京」「伦敦」..."
+      autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- 世界地图 -->
+  <div class="map-container" id="mapContainer"></div>
+  <!-- 彗星独立层（Canvas 之上） -->
+  <script>
+  (function(){
+    var mc = document.getElementById('mapContainer');
+    var comet = document.createElement('div');
+    comet.id = 'comet-el';
+    mc.appendChild(comet);
+    function randomComet() {
+      var st = document.documentElement.style;
+      var sides = [
+        {x:-12,y:10+Math.random()*15},
+        {x:90+Math.random()*12,y:5+Math.random()*12},
+        {x:-5,y:80+Math.random()*15},
+        {x:5+Math.random()*10,y:-5},
+      ];
+      var from = sides[Math.floor(Math.random()*sides.length)];
+      var to = {x:15+Math.random()*75,y:15+Math.random()*70};
+      if (Math.abs(to.x-from.x)<20 && Math.abs(to.y-from.y)<20) { to.x=30+Math.random()*50; to.y=30+Math.random()*50; }
+      var dx=to.x-from.x, dy=to.y-from.y;
+      var angle=Math.atan2(dy,dx)*180/Math.PI;
+      var len=Math.max(80,Math.sqrt(dx*dx+dy*dy)*0.6);
+      st.setProperty('--comet-x0',from.x+'%'); st.setProperty('--comet-y0',from.y+'%');
+      st.setProperty('--comet-xm',((from.x+to.x)/2)+'%'); st.setProperty('--comet-ym',((from.y+to.y)/2)+'%');
+      st.setProperty('--comet-x1',to.x+'%'); st.setProperty('--comet-y1',to.y+'%');
+      st.setProperty('--comet-angle',angle.toFixed(1)+'deg');
+      st.setProperty('--comet-len',Math.round(len)+'px');
+    }
+    randomComet();
+    setInterval(randomComet,10000);
+  })();
+  </script>
+
+  <!-- 常用城市 -->
+  <div class="quick-section">
+    <div class="section-label" data-i18n="常用城市">常用城市</div>
+  </div>
+
+  <!-- 双城市对比 -->
+  <div class="cities-container">
+    <div class="city-card" id="cityCard1">
+      <div class="card-label">城市 1</div>
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>搜索或点击地图选择城市</span>
+      </div>
+    </div>
+
+    <div class="diff-indicator" id="diffIndicator">
+      <span class="diff-placeholder">← 选择两个城市查看时差 →</span>
+    </div>
+
+    <div class="city-card" id="cityCard2">
+      <div class="card-label">城市 2</div>
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>搜索或点击地图选择城市</span>
+      </div>
+    </div>
+  </div>
+  <div class="version-tag"><span data-i18n="世界时间">世界时间</span> v1.4.1 &mdash; 3D Globe</div>
+  <footer class="app-footer">
+    <p data-i18n="地图数据：Natural Earth (public domain, 50m Physical Vectors)">地图数据：Natural Earth (public domain, 50m Physical Vectors)</p>
+    <p data-i18n="本App核心代码完全由AI辅助完成">本App核心代码完全由AI辅助完成</p>
+    <p data-i18n="版权所有：Tulatin">版权所有：Tulatin</p>
+    <p data-i18n="开发耗时：31小时">开发耗时：31小时</p>
+    <p data-i18n="API消耗：9.775亿 / 977.5Million tokens">API消耗：9.775亿 / 977.5Million tokens</p>
+    <p data-i18n="API消耗费用：RMB 48.12">API消耗费用：RMB 48.12</p>
+    <p data-i18n="安装包体积：10M">安装包体积：10M</p>
+    <p data-i18n="愿技术回归纯粹，愿沟通跨越时区。">愿技术回归纯粹，愿沟通跨越时区。</p>
+  </footer>
+</div>
+
+<!-- 主题切换按钮 -->
+<button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+</button>
+
+<!-- JS 模块加载（按依赖顺序） -->
+<script src="lib/three.min.js"></script>
+<script src="lib/topojson-client.js"></script>
+  <script src="js/cities/east-asia.js?v=5"></script>
+  <script src="js/cities/southeast-asia.js?v=5"></script>
+  <script src="js/cities/south-asia.js?v=5"></script>
+  <script src="js/cities/central-asia.js?v=5"></script>
+  <script src="js/cities/middle-east.js?v=5"></script>
+  <script src="js/cities/europe.js?v=6"></script>
+  <script src="js/cities/russia.js?v=1"></script>
+  <script src="js/cities/africa.js?v=5"></script>
+  <script src="js/cities/north-america.js?v=5"></script>
+  <script src="js/cities/south-america.js?v=5"></script>
+  <script src="js/cities/oceania.js?v=5"></script>
+  <script src="js/cities.js?v=5"></script>
+<script src="js/elev.js?v=5"></script>
+<script src="js/name-formatter.js?v=5"></script>
+<script src="js/i18n.js?v=5"></script>
+<script src="js/dev.js?v=5"></script>
+<script src="js/clock.js?v=5"></script>
+<script src="js/theme.js?v=5"></script>
+<script src="js/astro.js?v=5"></script>
+<script src="js/globe.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+<script src="js/detail.js?v=5"></script>
+<script src="js/compare.js?v=5"></script>
+<script src="js/mini-globe.js?v=5"></script>
+
+<!-- 主题切换逻辑 -->
+<script>
+(function() {
+  const toggle = document.getElementById('themeToggle');
+  if (!toggle) return;
+
+  const themes = ['light', 'dark', 'warm'];
+  let currentIndex = 0;
+
+  toggle.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % themes.length;
+    const themeId = themes[currentIndex];
+    if (window.WorldClock && window.WorldClock.ThemeManager) {
+      window.WorldClock.ThemeManager.setTheme(themeId);
+    }
+  });
+
+  // 键盘快捷键: Ctrl+Shift+T 切换主题
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+      e.preventDefault();
+      toggle.click();
+    }
+  });
+})();
+</script>
+
+<!-- PWA Service Worker（离线缓存） -->
+<script>
+// ========== 热更新：版本检查，强制覆盖旧缓存 ==========
+if ('serviceWorker' in navigator) {
+  const VER_KEY = 'worldclock-app-ver';
+  fetch('version.json?t=' + Date.now())
+    .then(r => r.json())
+    .then(remote => {
+      const local = (() => { try { return JSON.parse(localStorage.getItem(VER_KEY)); } catch { return null; } })();
+      if (!local || local.version !== remote.version || local.build !== remote.build) {
+        console.log('[HotUpdate] 检测到新版本 v' + remote.version + ' build ' + remote.build + '，清除缓存...');
+        localStorage.setItem(VER_KEY, JSON.stringify(remote));
+        // 清除所有缓存 + 注销旧 SW
+        caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))));
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+      }
+    })
+    .finally(() => {
+      // 注册 SW（网络优先策略）
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      }).finally(() => {
+        navigator.serviceWorker.register('sw.js?v=v9').then(reg => {
+          console.log('[PWA] SW v8 (network-first) 已注册');
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('[PWA] 新版本已就绪，刷新页面...');
+                window.location.reload();
+              }
+            });
+          });
+        });
+      });
+    });
+}
+</script>
+
+</body>
+</html>
